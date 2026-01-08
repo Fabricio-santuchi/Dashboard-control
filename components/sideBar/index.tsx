@@ -103,7 +103,7 @@ const SideBar = () => {
                 href="#"
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
               >
-                <LogOut className="h-5 w-5 text-red-500"/>
+                <LogOut className="h-5 w-5 text-red-500" />
                 <span className="sr-only">Sair</span>
               </Link>
             </TooltipTrigger>
