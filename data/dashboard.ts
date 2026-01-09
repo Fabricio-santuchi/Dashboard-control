@@ -2,14 +2,12 @@ type DashboardData = {
   lastUpdated: string;
 
   metrics: {
-    totalSales90Days: number;
     newCustomers30Days: number;
     ordersToday: number;
     orders30Days: number;
     averageTicket: number;
   };
 
-  // 📊 Gráfico anual / geral
   monthlySales: {
     month: string;
     desktop: number;
@@ -41,10 +39,6 @@ const monthlySales = [
   { month: "Dezembro", desktop: 7000, mobile: 5400, total: 12400 },
 ];
 
-const totalSales90Days = monthlySales
-  .slice(-3)
-  .reduce((acc, month) => acc + month.total, 0);
-
 export const dashboardData: DashboardData = {
   lastUpdated: new Date().toISOString(),
 
@@ -53,7 +47,6 @@ export const dashboardData: DashboardData = {
     ordersToday: 23,
     newCustomers30Days: 198,
     averageTicket: 92,
-    totalSales90Days,
   },
 
   monthlySales,
@@ -94,19 +87,19 @@ export const dashboardData: DashboardData = {
       avatar: "/avatars/Avatar5.png",
       value: 410,
     },
-    {
-      id: 6,
-      name: "Juliana Pires",
-      email: "juliana.pires@email.com",
-      avatar: "/avatars/Avatar6.png",
-      value: 610,
-    },
-    {
-      id: 7,
-      name: "Darlan oliveira",
-      email: "darlan.oliveira@email.com",
-      avatar: "/avatars/Avatar7.png",
-      value: 189,
-    },
+    // {
+    //   id: 6,
+    //   name: "Juliana Pires",
+    //   email: "juliana.pires@email.com",
+    //   avatar: "/avatars/Avatar6.png",
+    //   value: 610,
+    // },
+    // {
+    //   id: 7,
+    //   name: "Darlan oliveira",
+    //   email: "darlan.oliveira@email.com",
+    //   avatar: "/avatars/Avatar7.png",
+    //   value: 189,
+    // },
   ],
 };
