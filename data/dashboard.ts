@@ -101,5 +101,12 @@ export const dashboardData: DashboardData = {
       avatar: "/avatars/Avatar6.png",
       value: 610,
     },
+    {
+      id: 7,
+      name: "Darlan oliveira",
+      email: "darlan.oliveira@email.com",
+      avatar: "/avatars/Avatar7.png",
+      value: 189,
+    },
   ],
 };
