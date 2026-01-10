@@ -8,7 +8,7 @@ Um painel administrativo completo, construído para monitoramento de métricas d
 
 ## 🔗 Links
 
-- [Demo na Vercel](COLE_AQUI_O_LINK_DA_VERCEL)
+- [Demo na Vercel](https://dashboard-control-cyan.vercel.app/)
 
 ---
 
