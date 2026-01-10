@@ -1,8 +1,11 @@
-type MonthlySale = {
-  month: string;
-  total: number;
-};
+export async function getDashboardMetrics() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/dashboard`, {
+    cache: "no-store",
+  });
 
-export function getTotalSalesLast90Days(data: MonthlySale[]) {
-  return data.slice(-3).reduce((acc, month) => acc + month.total, 0);
+  if (!res.ok) {
+    throw new Error("Erro ao buscar métricas");
+  }
+
+  return res.json();
 }

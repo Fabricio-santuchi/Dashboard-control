@@ -5,38 +5,60 @@ import ChartTotal from "@/components/chart-total";
 import MetricCard from "@/components/metricCard";
 import Sales from "@/components/sales";
 import { Skeleton } from "@/components/ui/skeleton";
-import { dashboardData } from "@/data/dashboard";
 import { dashboardCards } from "@/data/dashboard-cards";
+import { DashboardResponse } from "@/types/dashboard";
 import { useEffect, useState } from "react";
+
+export type DashboardMetrics = {
+  totalSales90Days: number;
+  ordersToday: number;
+  orders30Days: number;
+  newCustomers30Days: number;
+};
+
+async function fetchDashboard() {
+  const res = await fetch("/api/dashboard");
+  const data = await res.json();
+
+  if (!res.ok) throw new Error("Erro ao buscar dados");
+  return data;
+}
 
 const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const lastUpdated = new Date(dashboardData.lastUpdated);
-  const FAKE_LOADING_TIME = 1200;
+  const [dashboardData, setDashboardData] = useState<DashboardResponse>();
+  const lastUpdated = dashboardData
+    ? new Date(dashboardData.lastUpdated)
+    : null;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, FAKE_LOADING_TIME);
+    async function loadData() {
+      try {
+        const data = await fetchDashboard();
+        setDashboardData(data);
+        console.log(data);
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
-    return () => clearTimeout(timer);
-  }, [FAKE_LOADING_TIME]);
+    loadData();
+  }, []);
 
   return (
     <main className="sm:ml-14 p-4">
       <h1 className="text-sm text-muted-foreground mb-3">
-        Última atualização: {lastUpdated.toLocaleString("pt-BR")}
+        Última atualização:{" "}
+        {lastUpdated ? lastUpdated.toLocaleString("pt-BR") : "--"}
       </h1>
-      {isLoading ? (
+      {isLoading || !dashboardData ? (
         <>
-          {/* Skeleton dos cards */}
           <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {dashboardCards.map((_, i) => (
               <Skeleton key={i} className="h-48 rounded-xl" />
             ))}
           </section>
 
-          {/* Skeleton dos gráficos + lista */}
           <section className="mt-4 flex flex-col gap-4">
             <section className="flex flex-col md:flex-row gap-4">
               <Skeleton className="min-h-87.5 flex-1 rounded-xl" />
@@ -53,7 +75,8 @@ const DashboardPage = () => {
                 key={card.id}
                 title={card.title}
                 description={card.description}
-                value={card.getValue()}
+                value={card.getValue(dashboardData)}
+                format={card.format}
                 icon={card.icon}
                 trend={card.trend}
               />
@@ -62,15 +85,17 @@ const DashboardPage = () => {
 
           <section className="mt-4 flex flex-col gap-4">
             <section className="flex flex-col md:flex-row gap-4">
-              <ChartOverview />
+              <ChartOverview data={dashboardData.charts.monthlySales} />
+
               <Sales />
             </section>
 
-            <ChartTotal />
+            <ChartTotal data={dashboardData.charts.monthlySales} />
           </section>
         </>
       )}
     </main>
   );
 };
+
 export default DashboardPage;

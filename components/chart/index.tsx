@@ -11,10 +11,18 @@ import {
   ChartTooltipContent,
 } from "../ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { dashboardData } from "@/data/dashboard";
 
-const ChartOverview = () => {
-  const chartData = dashboardData.monthlySales;
+export type MonthlySales = {
+  month: string;
+  total: number;
+};
+
+export type PropsMonthlySales = {
+  data: MonthlySales[];
+};
+
+const ChartOverview = ({ data }: PropsMonthlySales) => {
+  const chartData = data;
 
   const chartConfig = {
     desktop: {
@@ -47,7 +55,6 @@ const ChartOverview = () => {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip content={<ChartTooltipContent />} />
             <ChartLegend content={<ChartLegendContent />} />

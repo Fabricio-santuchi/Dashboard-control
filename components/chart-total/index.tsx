@@ -8,8 +8,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis } from "recharts";
-import { dashboardData } from "@/data/dashboard";
 import { TrendingUp } from "lucide-react";
+import { PropsMonthlySales } from "../chart";
 
 const chartConfig = {
   total: {
@@ -18,7 +18,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const ChartTotal = () => {
+const ChartTotal = ({ data }: PropsMonthlySales) => {
   return (
     <Card className="flex-1">
       <CardHeader>
@@ -30,7 +30,7 @@ const ChartTotal = () => {
 
       <CardContent>
         <ChartContainer config={chartConfig} className="h-87.5 w-full">
-          <LineChart data={dashboardData.monthlySales}>
+          <LineChart data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"

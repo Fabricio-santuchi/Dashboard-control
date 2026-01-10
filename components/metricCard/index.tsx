@@ -5,20 +5,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Trend } from "@/data/dashboard-cards";
+import { formatBRLFromString } from "@/lib/format";
 
 type MetricCardProps = {
   title: string;
   description: string;
   value: string | number;
+  format?: "currency" | "number";
   icon: React.ElementType;
-  trend?: Trend;
+  trend?: {
+    value: number;
+    label: string;
+  };
 };
+
+function formatValue(
+  value: string | number,
+  format: "currency" | "number" = "number"
+) {
+  if (format === "currency") {
+    return formatBRLFromString(value);
+  }
+
+  return new Intl.NumberFormat("pt-BR").format(
+    typeof value === "string" ? Number(value) : value
+  );
+}
 
 const MetricCard = ({
   title,
   description,
   value,
+  format = "number",
   icon: Icon,
   trend,
 }: MetricCardProps) => {
@@ -35,7 +53,9 @@ const MetricCard = ({
       </CardHeader>
 
       <CardContent>
-        <p className="text-base sm:text-lg font-bold">{value}</p>
+        <p className="text-base sm:text-lg font-bold">
+          {formatValue(value, format)}
+        </p>
         {trend && (
           <div
             className={`mt-1 flex items-center gap-1 text-xs md:text-sm ${

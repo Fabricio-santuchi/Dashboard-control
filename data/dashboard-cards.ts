@@ -1,31 +1,15 @@
 import { DollarSign, Users, Percent, BadgeDollarSign } from "lucide-react";
+import type { DashboardResponse } from "@/types/dashboard";
 
-export type Trend = {
-  value: number; // ex: 10 ou -4
-  label: string; // "em relação ao mês passado"
-};
-
-export type DashboardCardConfig = {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ElementType;
-  getValue: () => string | number;
-  trend: Trend;
-};
-
-import { dashboardData } from "./dashboard";
-import { getTotalSalesLast90Days } from "@/lib/dashboard-metrics";
-
-const totalSales90Days = getTotalSalesLast90Days(dashboardData.monthlySales);
-
-export const dashboardCards: DashboardCardConfig[] = [
+export const dashboardCards = [
   {
     id: "total-sales",
     title: "Total vendas",
     description: "Total de vendas em 90 dias",
     icon: DollarSign,
-    getValue: () => `R$ ${totalSales90Days.toLocaleString("pt-BR")}`,
+    getValue: (data: DashboardResponse) =>
+      `R$ ${data.metrics.totalSales90Days}`,
+    format: "currency" as const,
     trend: {
       value: 12,
       label: "em relação ao mês passado",
@@ -36,7 +20,9 @@ export const dashboardCards: DashboardCardConfig[] = [
     title: "Novos clientes",
     description: "Novos clientes em 30 dias",
     icon: Users,
-    getValue: () => dashboardData.metrics.newCustomers30Days,
+    getValue: (data?: DashboardResponse) =>
+      data ? data.metrics.newCustomers30Days : "—",
+    format: "number" as const,
     trend: {
       value: 10,
       label: "em relação ao mês passado",
@@ -47,7 +33,9 @@ export const dashboardCards: DashboardCardConfig[] = [
     title: "Pedidos hoje",
     description: "Total de pedidos hoje",
     icon: Percent,
-    getValue: () => dashboardData.metrics.ordersToday,
+    getValue: (data?: DashboardResponse) =>
+      data ? data.metrics.ordersToday : "—",
+    format: "number" as const,
     trend: {
       value: -4,
       label: "em relação a ontem",
@@ -58,7 +46,8 @@ export const dashboardCards: DashboardCardConfig[] = [
     title: "Total pedidos",
     description: "Total pedidos em 30 dias",
     icon: BadgeDollarSign,
-    getValue: () => dashboardData.metrics.orders30Days,
+    getValue: (data: DashboardResponse) => data.metrics.orders30Days,
+    format: "number" as const,
     trend: {
       value: 8,
       label: "em relação ao mês passado",
