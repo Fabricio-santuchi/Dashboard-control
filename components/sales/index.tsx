@@ -19,7 +19,7 @@ const Sales = () => {
           </CardTitle>
           <CircleDollarSign className="ml-auto w-4 h-4" />
         </div>
-        <CardDescription>Novos clientes nas últimas 24 horas</CardDescription>
+        <CardDescription className="text-xs sm:text-sm">Novos clientes nas últimas 24 horas</CardDescription>
       </CardHeader>
       <CardContent>
         {dashboardData.recentCustomers.map((customer) => (
@@ -39,7 +39,9 @@ const Sales = () => {
                 {customer.email}
               </span>
             </div>
-            <span className="font-medium">R$ {customer.value}</span>
+            <span className="font-medium hidden sm:inline">
+              R$ {customer.value}
+            </span>
           </article>
         ))}
       </CardContent>

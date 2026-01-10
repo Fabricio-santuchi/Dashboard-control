@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+} from "../ui/sheet";
 import {
   Home,
   LogOut,
@@ -123,6 +129,11 @@ const SideBar = () => {
             </SheetTrigger>
 
             <SheetContent side="left" className="sm:max-w-x p-6">
+              <SheetTitle className="sr-only">Menu de navegação</SheetTitle>
+              <SheetDescription className="sr-only">
+                Navegação principal do painel administrativo
+              </SheetDescription>
+
               <nav className="grid gap-6 text-lg font-medium">
                 <Link
                   href="#"

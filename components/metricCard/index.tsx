@@ -38,7 +38,7 @@ const MetricCard = ({
           </CardTitle>
           <Icon className="ml-auto w-4 h-4" />
         </div>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription className="text-xs sm:text-sm">{description}</CardDescription>
       </CardHeader>
 
       <CardContent>
