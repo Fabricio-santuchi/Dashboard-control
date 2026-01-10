@@ -1,15 +1,21 @@
 // types/dashboard.ts
 export type DashboardResponse = {
-  lastUpdated: string;
   metrics: {
-    totalSales90Days: string;
+    totalSales90Days: number;
     ordersToday: number;
     orders30Days: number;
     newCustomers30Days: number;
+    currentMonthSales: number;
+    previousMonthSales: number;
+    monthGrowth: number;
   };
   charts: {
-    monthlySales: [
-      { month: string; total: number; desktop: number; mobile: number }
-    ];
+    monthlySales: {
+      month: string;
+      total: number;
+      desktop: number;
+      mobile: number;
+    }[];
   };
+  lastUpdated: string;
 };

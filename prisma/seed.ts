@@ -5,23 +5,32 @@ function randomBetween(min: number, max: number) {
 }
 
 async function main() {
-  const year = new Date().getFullYear();
+  const now = new Date();
+
+  console.log("🌱 Limpando dados antigos...");
+  await prisma.order.deleteMany();
+  await prisma.customer.deleteMany();
 
   /* ============================
-     ORDERS – JAN → DEZ
+     ORDERS – ÚLTIMOS 12 MESES
   ============================ */
-  for (let month = 0; month < 12; month++) {
-    // quantidade de pedidos por mês (sazonalidade leve)
-    const ordersInMonth = randomBetween(15, 40);
+  for (let i = 11; i >= 0; i--) {
+    const dateBase = new Date(now.getFullYear(), now.getMonth() - i, 1);
 
-    for (let i = 0; i < ordersInMonth; i++) {
-      const day = randomBetween(1, 28); // evita bug de mês
-      const total = randomBetween(120, 1500); // ticket médio realista
+    const ordersInMonth = randomBetween(20, 45);
+
+    for (let j = 0; j < ordersInMonth; j++) {
+      const day = randomBetween(1, 28);
+      const total = randomBetween(300, 1800);
 
       await prisma.order.create({
         data: {
           total,
-          createdAt: new Date(year, month, day),
+          createdAt: new Date(
+            dateBase.getFullYear(),
+            dateBase.getMonth(),
+            day
+          ),
         },
       });
     }
@@ -30,24 +39,23 @@ async function main() {
   /* ============================
      CUSTOMERS – ÚLTIMOS 6 MESES
   ============================ */
-  for (let i = 0; i < 80; i++) {
+  for (let i = 0; i < 90; i++) {
     const daysAgo = randomBetween(0, 180);
 
     await prisma.customer.create({
       data: {
-        createdAt: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
+        createdAt: new Date(
+          now.getTime() - daysAgo * 24 * 60 * 60 * 1000
+        ),
       },
     });
   }
 
-  console.log("🌱 Seed anual concluído com sucesso!");
+  console.log("✅ Seed temporal concluído com sucesso!");
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
+  .catch(console.error)
   .finally(async () => {
     await prisma.$disconnect();
   });

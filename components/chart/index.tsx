@@ -11,15 +11,7 @@ import {
   ChartTooltipContent,
 } from "../ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-
-export type MonthlySales = {
-  month: string;
-  total: number;
-};
-
-export type PropsMonthlySales = {
-  data: MonthlySales[];
-};
+import { PropsMonthlySales } from "@/types/monthlySales";
 
 const ChartOverview = ({ data }: PropsMonthlySales) => {
   const chartData = data;

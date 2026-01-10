@@ -3,18 +3,12 @@
 import ChartOverview from "@/components/chart";
 import ChartTotal from "@/components/chart-total";
 import MetricCard from "@/components/metricCard";
+import MonthComparisonCard from "@/components/monthComparisonCard";
 import Sales from "@/components/sales";
 import { Skeleton } from "@/components/ui/skeleton";
 import { dashboardCards } from "@/data/dashboard-cards";
 import { DashboardResponse } from "@/types/dashboard";
 import { useEffect, useState } from "react";
-
-export type DashboardMetrics = {
-  totalSales90Days: number;
-  ordersToday: number;
-  orders30Days: number;
-  newCustomers30Days: number;
-};
 
 async function fetchDashboard() {
   const res = await fetch("/api/dashboard");
@@ -84,12 +78,18 @@ const DashboardPage = () => {
           </section>
 
           <section className="mt-4 flex flex-col gap-4">
+            <section className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <MonthComparisonCard
+                current={dashboardData.metrics.currentMonthSales}
+                previous={dashboardData.metrics.previousMonthSales}
+                growth={dashboardData.metrics.monthGrowth}
+              />
+            </section>
             <section className="flex flex-col md:flex-row gap-4">
               <ChartOverview data={dashboardData.charts.monthlySales} />
 
               <Sales />
             </section>
-
             <ChartTotal data={dashboardData.charts.monthlySales} />
           </section>
         </>

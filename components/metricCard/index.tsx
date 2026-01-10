@@ -6,18 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { formatBRLFromString } from "@/lib/format";
-
-type MetricCardProps = {
-  title: string;
-  description: string;
-  value: string | number;
-  format?: "currency" | "number";
-  icon: React.ElementType;
-  trend?: {
-    value: number;
-    label: string;
-  };
-};
+import { MetricCardProps } from "@/types/metricCard";
 
 function formatValue(
   value: string | number,

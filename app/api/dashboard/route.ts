@@ -10,61 +10,125 @@ export async function GET() {
     /* ============================
        DATAS BASE
     ============================ */
-    const last90Days = new Date();
-    last90Days.setDate(now.getDate() - 90);
 
-    const last30Days = new Date();
+    // hoje
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const endOfToday = new Date(now);
+    endOfToday.setHours(23, 59, 59, 999);
+
+    // últimos 30 dias (ok ser relativo)
+    const last30Days = new Date(now);
     last30Days.setDate(now.getDate() - 30);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // 🔴 CORRETO: últimos 3 meses (por mês, não por dias)
+    const startOf90Days = new Date(now.getFullYear(), now.getMonth() - 2, 1);
 
     /* ============================
        MÉTRICAS (CARDS)
     ============================ */
     const [totalSales90Days, ordersToday, orders30Days, newCustomers30Days] =
       await Promise.all([
+        // TOTAL DE VENDAS – últimos 3 meses
         prisma.order.aggregate({
-          where: { createdAt: { gte: last90Days } },
+          where: {
+            createdAt: {
+              gte: startOf90Days,
+              lte: now,
+            },
+          },
           _sum: { total: true },
         }),
 
+        // pedidos de hoje
         prisma.order.count({
-          where: { createdAt: { gte: today } },
+          where: {
+            createdAt: {
+              gte: startOfToday,
+              lte: endOfToday,
+            },
+          },
         }),
 
+        // pedidos últimos 30 dias
         prisma.order.count({
-          where: { createdAt: { gte: last30Days } },
+          where: {
+            createdAt: {
+              gte: last30Days,
+              lte: now,
+            },
+          },
         }),
 
+        // novos clientes últimos 30 dias
         prisma.customer.count({
-          where: { createdAt: { gte: last30Days } },
+          where: {
+            createdAt: {
+              gte: last30Days,
+              lte: now,
+            },
+          },
         }),
       ]);
 
     /* ============================
-       GRÁFICO – VENDAS MENSAIS
-       Janeiro → Dezembro
+       COMPARATIVO MÊS ATUAL x ANTERIOR
     ============================ */
-    const year = now.getFullYear();
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const startOfYear = new Date(year, 0, 1); // Jan
-    const endOfYear = new Date(year, 11, 31); // Dez
+    const startOfPreviousMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      1
+    );
 
-    const ordersYear = await prisma.order.findMany({
-      where: {
-        createdAt: {
-          gte: startOfYear,
-          lte: endOfYear,
+    const endOfPreviousMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+
+    const [currentMonthSales, previousMonthSales] = await Promise.all([
+      // mês atual até hoje
+      prisma.order.aggregate({
+        where: {
+          createdAt: {
+            gte: startOfCurrentMonth,
+            lte: now,
+          },
         },
-      },
-      select: {
-        createdAt: true,
-        total: true,
-      },
-    });
+        _sum: { total: true },
+      }),
 
-    const months = [
+      // mês anterior fechado
+      prisma.order.aggregate({
+        where: {
+          createdAt: {
+            gte: startOfPreviousMonth,
+            lte: endOfPreviousMonth,
+          },
+        },
+        _sum: { total: true },
+      }),
+    ]);
+
+    const currentTotal = currentMonthSales._sum.total ?? 0;
+    const previousTotal = previousMonthSales._sum.total ?? 0;
+
+    const growth =
+      previousTotal === 0
+        ? 100
+        : ((currentTotal - previousTotal) / previousTotal) * 100;
+
+    /* ============================
+       GRÁFICO – ÚLTIMOS 12 MESES (ROLLING)
+    ============================ */
+    const monthsLabel = [
       "Jan",
       "Fev",
       "Mar",
@@ -79,35 +143,48 @@ export async function GET() {
       "Dez",
     ];
 
-    // inicia todos os meses com 0
-    const monthlyTotals = new Array(12).fill(0);
+    // começa 11 meses atrás
+    const startRolling = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
-    // soma vendas por mês
-    for (const order of ordersYear) {
-      const monthIndex = order.createdAt.getMonth(); // 0–11
-      monthlyTotals[monthIndex] += order.total;
+    const ordersRolling = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: startRolling,
+          lte: now,
+        },
+      },
+      select: {
+        createdAt: true,
+        total: true,
+      },
+    });
+
+    const totalsMap = new Map<string, number>();
+
+    for (const order of ordersRolling) {
+      const y = order.createdAt.getFullYear();
+      const m = order.createdAt.getMonth();
+      const key = `${y}-${m}`;
+      totalsMap.set(key, (totalsMap.get(key) ?? 0) + order.total);
     }
 
-    const monthlySales = months.map((month, index) => {
-      const total = monthlyTotals[index];
+    const monthlySales = Array.from({ length: 12 }).map((_, i) => {
+      const date = new Date(
+        startRolling.getFullYear(),
+        startRolling.getMonth() + i,
+        1
+      );
 
-      // se não teve venda no mês
-      if (total === 0) {
-        return {
-          month,
-          total: 0,
-          desktop: 0,
-          mobile: 0,
-        };
-      }
+      const year = date.getFullYear();
+      const monthIndex = date.getMonth();
+      const key = `${year}-${monthIndex}`;
 
-      // proporção desktop / mobile
-      const desktopPercent = 0.64; 
-      const desktop = Math.round(total * desktopPercent);
+      const total = totalsMap.get(key) ?? 0;
+      const desktop = Math.round(total * 0.64);
       const mobile = total - desktop;
 
       return {
-        month,
+        month: `${monthsLabel[monthIndex]}/${year}`,
         total,
         desktop,
         mobile,
@@ -123,11 +200,14 @@ export async function GET() {
         ordersToday,
         orders30Days,
         newCustomers30Days,
+        currentMonthSales: currentTotal,
+        previousMonthSales: previousTotal,
+        monthGrowth: Math.round(growth),
       },
       charts: {
         monthlySales,
       },
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: now.toISOString(),
     });
   } catch (error) {
     console.error("[DASHBOARD_API_ERROR]", error);

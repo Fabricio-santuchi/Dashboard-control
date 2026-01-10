@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/chart";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis } from "recharts";
 import { TrendingUp } from "lucide-react";
-import { PropsMonthlySales } from "../chart";
+import { PropsMonthlySales } from "@/types/monthlySales";
 
 const chartConfig = {
   total: {
