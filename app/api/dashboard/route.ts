@@ -18,11 +18,11 @@ export async function GET() {
     const endOfToday = new Date(now);
     endOfToday.setHours(23, 59, 59, 999);
 
-    // últimos 30 dias (ok ser relativo)
+    // últimos 30 dias 
     const last30Days = new Date(now);
     last30Days.setDate(now.getDate() - 30);
 
-    // 🔴 CORRETO: últimos 3 meses (por mês, não por dias)
+    // 🔴 CORRETO: últimos 3 meses 
     const startOf90Days = new Date(now.getFullYear(), now.getMonth() - 2, 1);
 
     /* ============================
@@ -126,7 +126,7 @@ export async function GET() {
         : ((currentTotal - previousTotal) / previousTotal) * 100;
 
     /* ============================
-       GRÁFICO – ÚLTIMOS 12 MESES (ROLLING)
+       GRÁFICO – ÚLTIMOS 12 MESES 
     ============================ */
     const monthsLabel = [
       "Jan",
